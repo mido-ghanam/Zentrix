@@ -19,4 +19,3 @@ u = requests.post(url1, json=register)
 
 print(u.text)
 print(u.status_code)
-ا1
