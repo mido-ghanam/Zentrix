@@ -1,12 +1,15 @@
 from core.utils import get_client_ip, get_user_agent, send_email, get_mediadrop_google_access, generate_code
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.contrib.auth.tokens import default_token_generator
 from django.template.loader import render_to_string
 from rest_framework.response import Response
 from datetime import datetime, timedelta
+from rest_framework.views import APIView
 from django.utils.timezone import now
 from rest_framework import status
 from .. import models as m
+
 
 @api_view(["GET", "POST"])
 @permission_classes([IsAuthenticated])
@@ -41,3 +44,55 @@ def completeUserDetials(request):
   if not email: return Response({"status": False, "error": "E-mail field required"}, status=status.HTTP_400_BAD_REQUEST)
   request.user.email, _ = email, request.user.save()
   return Response({"status": True, "message": "Email saved successfully, please activate your account", "next": "/auth/account/activate/"}, status=status.HTTP_200_OK)
+
+@api_view(["POST"])
+@permission_classes([AllowAny])
+def ResetPassword(request):
+  process_code, email = request.data.get("processCode", ""), request.data.get("email", "")
+  if not email: return Response({"status": False, "error": "E-mail field required"}, status=status.HTTP_400_BAD_REQUEST)
+  request.user.email, _ = email, request.user.save()
+  return Response({"status": True, "message": "Email saved successfully, please activate your account", "next": "/auth/account/activate/"}, status=status.HTTP_200_OK)
+
+class ResetPasswordView(APIView):
+  def post(self, request):
+    serializer = ResetPasswordSerializer(data=request.data)
+    if serializer.is_valid():
+      email = serializer.validated_data['email']
+      user = User.objects.filter(email=email).first()
+      if user:
+        token = default_token_generator.make_token(user)
+        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+        link = f"http://example.com/reset-password-confirm/{uidb64}/{token}/"
+        send_mail(
+                    'Reset Password',
+                    f'Please click the link to reset your password: {link}',
+                    'from@example.com',
+                    [email],
+                    fail_silently=False,
+                )
+        return Response({'message': 'Email sent successfully'})
+      else:
+        return Response({'message': 'User not found'})
+    else:
+      return Response(serializer.errors)
+
+class ResetPasswordConfirmView(APIView):
+    def post(self, request):
+        serializer = ResetPasswordConfirmSerializer(data=request.data)
+        if serializer.is_valid():
+            uidb64 = serializer.validated_data['uidb64']
+            token = serializer.validated_data['token']
+            new_password = serializer.validated_data['new_password']
+            try:
+                uid = urlsafe_base64_decode(uidb64).decode()
+                user = User.objects.get(pk=uid)
+            except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+                user = None
+            if user is not None and default_token_generator.check_token(user, token):
+                user.set_password(new_password)
+                user.save()
+                return Response({'message': 'Password reset successfully'})
+            else:
+                return Response({'message': 'Invalid token'})
+        else:
+            return Response(serializer.errors)

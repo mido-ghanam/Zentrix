@@ -41,3 +41,9 @@ class GitHubAuth(models.Model):
   avatar_url = models.URLField(blank=True, null=True)
   def __str__(self):
     return f"Auth for {self.user.user.get_full_name()} @{self.user.user.username}"
+
+class ResetPassword(models.Model):
+  id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=True)
+  user = models.ForeignKey(Users, on_delete=models.CASCADE)
+  token = models.TextField()
+  
