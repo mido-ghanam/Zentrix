@@ -3,7 +3,7 @@ import requests
 url1 = "http://127.0.0.1:8000/auth/login/"
 
 login = {
-  "username": 'Midohanam',
+  "username": 'MidoGhanam',
   "password": "Moh@2009@"
 }
 
