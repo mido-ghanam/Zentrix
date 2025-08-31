@@ -1,0 +1,16 @@
+import requests
+
+url = "http://127.0.0.1:8000/auth/logout/"
+
+headers = {
+  "Authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzU2MTE1OTE0LCJpYXQiOjE3NTYwOTQzMTQsImp0aSI6IjZkOWI3ZTllMGU5YTRhOGY4ODI2NzI4N2MyMDFjODc1IiwidXNlcl9pZCI6IjEiLCJmdWxsX25hbWUiOiJNb2hhbW1lZCBBaG1lZCBHaGFuYW0iLCJ1c2VybmFtZSI6Ik1pZG9HaGFuYW0iLCJlbWFpbCI6Im1naGFuYW04ODNAZ21haWwuY29tIiwiaXNfc3RhZmYiOnRydWUsInJvbGUiOiJhZG1pbiJ9.1LzAenlcHzvj9Hzog8HDtFCE0tUl61x9sE9WhpZKjZs"
+}
+token = {
+  "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc1ODY4NjMxNCwiaWF0IjoxNzU2MDk0MzE0LCJqdGkiOiJkYTM1NDAyNDA2OWY0MjNmOWU0ZWVhYTgyODBjZjE3ZSIsInVzZXJfaWQiOiIxIiwiZnVsbF9uYW1lIjoiTW9oYW1tZWQgQWhtZWQgR2hhbmFtIiwidXNlcm5hbWUiOiJNaWRvR2hhbmFtIiwiZW1haWwiOiJtZ2hhbmFtODgzQGdtYWlsLmNvbSIsImlzX3N0YWZmIjp0cnVlLCJyb2xlIjoiYWRtaW4ifQ.Q64rme7a-G6TwcrMltv9NTyQcVb5XIgxiKbcT2Y_u2c""
+}
+
+
+response = requests.post(url, headers=headers, json=token)
+
+print(response.status_code)
+print(response.text)

@@ -1,5 +1,5 @@
 from .MainVariables import BaseURLs, GoogleOAuth, GitHubOAuth, HostURL, _mediadrop_access_token, MainVars
-from django.utils.translation import gettext as _
+from rest_framework_simplejwt.tokens import RefreshToken
 import base64, requests, time, random
 from email.mime.text import MIMEText
 from user_agents import parse
@@ -18,13 +18,13 @@ def get_client_ip(request):
 def get_user_agent(request):
   user_agent = parse(request.META.get('HTTP_USER_AGENT', ''))
   if user_agent.is_mobile:
-    device_type = _("Mobile")
+    device_type = "Mobile"
   elif user_agent.is_pc:
-    device_type = _("Computer")
+    device_type = "Computer"
   else:
-    device_type = _("Unknown Device")
-  os = _(user_agent.os.family)
-  browser = _(user_agent.browser.family)
+    device_type = "Unknown Device"
+  os = user_agent.os.family
+  browser = user_agent.browser.family
   return {'device_type': device_type, 'os': os, 'browser': browser,}
 
 def exchange_code_github(code):
@@ -108,4 +108,5 @@ def generate_code(length=8):
 
 def getUserTokens(user):
   refresh = RefreshToken.for_user(user)
-  return {"refresh": str(refresh), "access": str(refresh.access_token)}
+  return {"refresh": str(refresh), "access": str(refresh.access_token),}
+  
