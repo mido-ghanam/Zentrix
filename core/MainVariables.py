@@ -13,23 +13,23 @@ def get_page_url(request):
   return urlparse(referer).path if referer else '/'
 
 GoogleOAuth = {
-  'client_id': "15653912530-ti0c8p8ncq7v4va8pi6gikp12jui5k5g.apps.googleusercontent.com",
+  'client_id': "168962013142-v1t0d4553e4n5evsd2lncbmavhfvqqqg.apps.googleusercontent.com",
   'redirect_uri': f'{HostURL}/auth/oauth/google/callback/',
   'scope': 'openid email profile',
   'response_type': 'code',
   'access_type': 'offline',
   'prompt': 'consent',
-  "client_secret": "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"
+  "client_secret": "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"
 }
 
 #params = {k: v for k, v in GoogleOAuth.items() if k != 'prompt'}
 
 GitHubOAuth = {
-  'client_id': 'Ov23liT1BHS8kRp2WmgF',
+  'client_id': 'Ov23li1G33o7ii85wPbM',
   'redirect_uri': f'{HostURL}/auth/oauth/github/callback/',
   'scope': 'read:user',
   'allow_signup': 'true',
-  'client_secret': "21e3189641f57af0bef8f1fd4ac484cc6bd9e6f1",
+  'client_secret': "afdbacf38638f772ae2de5b01a90e8e1a1e080af",
 }
 
 BaseURLs = {
