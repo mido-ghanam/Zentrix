@@ -1,0 +1,26 @@
+from .serializers import ResetPasswordSerializer, ResetPasswordConfirmSerializer
+from 
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail
+
+serializers.py
+
+
+~/MidoGhanam/Zentrix
+
+urls.py
+from django.urls import path
+from .views import ResetPasswordView, ResetPasswordConfirmView
+
+urlpatterns = [
+    path('reset-password/', ResetPasswordView.as_view()),
+    path('reset-password-confirm/', ResetPasswordConfirmView.as_view()),
+]
+*إعداد إرسال البريد الإلكتروني في Django*
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'your-email@gmail.com'
+EMAIL_HOST_PASSWORD = 'your-password'
