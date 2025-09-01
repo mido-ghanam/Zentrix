@@ -1,15 +1,18 @@
 from core.utils import get_client_ip, get_user_agent, send_email, get_zentrix_google_access, generate_code
+from ..serializers import ResetPasswordSerializer, ResetPasswordConfirmSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.tokens import default_token_generator
 from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
 from rest_framework.response import Response
+from django.contrib.auth.models import User
 from datetime import datetime, timedelta
 from rest_framework.views import APIView
 from django.utils.timezone import now
 from rest_framework import status
 from .. import models as m
-
 
 #@api_view(["GET", "POST"])
 #@permission_classes([IsAuthenticated])
@@ -48,10 +51,13 @@ from .. import models as m
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def ResetPassword(request):
-  process_code, email = request.data.get("processCode", ""), request.data.get("email", "")
-  if not email: return Response({"status": False, "error": "E-mail field required"}, status=status.HTTP_400_BAD_REQUEST)
-  request.user.email, _ = email, request.user.save()
-  return Response({"status": True, "message": "Email saved successfully, please activate your account", "next": "/auth/account/activate/"}, status=status.HTTP_200_OK)
+  email = request.data.get("email", "")
+  serializer = ResetPasswordSerializer(data={"email": email})
+  if not serializer.is_valid(): return Response({"status": False, "error": "E-mail is invalid"}, status=status.HTTP_400_BAD_REQUEST)
+  user = User.objects.filter(email=email).first()
+  if not user: return Response({"status": False, "error": f"No user recorded with email: '{email}'"}, status=status.HTTP_400_BAD_REQUEST)
+  uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+  return Response({"status": True, "message": str(uidb64)}, status=status.HTTP_200_OK)
 
 class ResetPasswordView(APIView):
   def post(self, request):
