@@ -4,6 +4,6 @@ class ResetPasswordSerializer(serializers.Serializer):
   email = serializers.EmailField()
 
 class ResetPasswordConfirmSerializer(serializers.Serializer):
-  uidb64 = serializers.CharField()
+  UUID = serializers.CharField()
   token = serializers.CharField()
-  new_password = serializers.CharField()
+  newPassword = serializers.CharField()

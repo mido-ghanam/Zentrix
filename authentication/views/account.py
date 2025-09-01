@@ -61,6 +61,18 @@ def ResetPassword(request):
   email_json, status  = send_email(email, "Resetting Password", "Test")
   return Response(email_json, status=status)
 
+@api_view(["PATCH"])
+@permission_classes([AllowAny])
+def ResetPasswordConfirm(request):
+  email, UUID, token = request.data.get("email", ""), request.data.get("UUID", ""), request.data.get("token", "")
+  serializer = ResetPasswordConfirmSerializer(data={"UUID": UUID, "token": token, "newPassword": newPassword})
+  if not serializer.is_valid(): return Response({"status": False, "error": str(serializer)}, status=400)
+  user, resetPasswordReq = User.objects.filter(email=email).first(), m.ResetPassword.objects.filter(token=token, id=UUID).first()
+  if not user: return Response({"status": False, "error": f"No user recorded with email: '{email}'"}, status=400)
+  if not resetPasswordReq: return Response({"status": False, "error": f"No reset password recorded with UUID: '{UUID}'"}, status=400)
+  user_auth = m.Users.objects.get(user=user)
+  return Response({}, status=200)
+
 
 class ResetPasswordConfirmView(APIView):
     def post(self, request):

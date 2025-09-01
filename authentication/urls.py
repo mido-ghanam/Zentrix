@@ -14,5 +14,6 @@ urlpatterns = [
   #path("account/activate/", v.account.activateUserAccount, name="activateAccount"),
   #path("account/completeData/", v.account.completeUserDetials, name="completeUserDetials"),
   path('account/resetPassword/', v.account.ResetPassword, name='ResetPassword'),
+  path('account/resetPasswordConfirm/', v.account.ResetPasswordConfirm, name='ResetPasswordConfirm'),
   
 ]
