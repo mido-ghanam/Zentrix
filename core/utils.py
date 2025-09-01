@@ -97,9 +97,9 @@ def send_email(to, subject, message_text, is_html=False, from_email=settings.EMA
       email.send()
     else:
       send_mail(subject=subject, message=message_text, from_email=from_email, recipient_list=[to],)
-    return {"status": True, "message": "E-mail sent successfully"}
+    return {"status": True, "message": "E-mail sent successfully"}, 200
   except Exception as e:
-    return {"status": False, "message": "error at sending e-mail", "status_code": response.status_code, "text": response.text}
+    return {"status": False, "message": "error at sending e-mail", "status_code": response.status_code, "text": response.text}, response.status_code
 
 def get_zentrix_google_access():
   global _zentrix_access_token

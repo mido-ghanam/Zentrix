@@ -9,7 +9,6 @@ from django.contrib.auth.models import User
 from datetime import datetime, timedelta
 from rest_framework.views import APIView
 from django.utils.timezone import now
-from rest_framework import status
 from .. import models as m
 
 #@api_view(["GET", "POST"])
@@ -51,13 +50,16 @@ from .. import models as m
 def ResetPassword(request):
   email = request.data.get("email", "")
   serializer = ResetPasswordSerializer(data={"email": email})
-  if not serializer.is_valid(): return Response({"status": False, "error": "E-mail is invalid"}, status=status.HTTP_400_BAD_REQUEST)
+  if not serializer.is_valid(): return Response({"status": False, "error": "E-mail is invalid"}, status=400)
   user = User.objects.filter(email=email).first()
-  if not user: return Response({"status": False, "error": f"No user recorded with email: '{email}'"}, status=status.HTTP_400_BAD_REQUEST)
+  if not user: return Response({"status": False, "error": f"No user recorded with email: '{email}'"}, status=400)
   user_auth = m.Users.objects.get(user=user)
   resetPassword, created = m.ResetPassword.objects.get_or_create(user=user_auth, defaults={"token": default_token_generator.make_token(user)})
-  send_email()
-  return Response({"status": True, "message": str(resetPassword), "created": created}, status=status.HTTP_200_OK)
+  if not created:
+    resetPassword.expired_at = m.default_expiry(ex=30)
+    resetPassword.save()
+  email_json, status  = send_email(email, "Resetting Password", "Test")
+  return Response(email_json, status=status)
 
 
 class ResetPasswordConfirmView(APIView):
