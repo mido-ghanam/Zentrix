@@ -1,8 +1,8 @@
 from rest_framework_simplejwt.tokens import RefreshToken
 from urllib.parse import urlparse
 
-HostURL = "https://apis.mediadrop.midoghanam.site"
-WebSiteURL = "https://mediadrop.midoghanam.site"
+HostURL = "https://apis.zentrix.midoghanam.site"
+WebSiteURL = "https://zentrix.midoghanam.site"
 CodeSpaceURL = "https://shiny-computing-machine-rjg65v5p4xxhp9q9-8000.app.github.dev"
 
 def NowURL(request):
@@ -53,14 +53,15 @@ BaseURLs = {
 }
 
 MainVars = {
-  "mediadrop": {
+  "zentrix": {
+    "email": "zentrixproject@gmail.com",
     "gmail": {
-      "refresh_token": "1//03yWBFcCZlAYPCgYIARAAGAMSNwF-L9IrXpWFEMDe4ahJh5Eo4n9wMNUjndjVFpUhPE60ex_9adLF_fLF8rUj4eJIc6qjnIISw_o",
+      "refresh_token": "",
     }
   }
 }
 
-_mediadrop_access_token = {
+_zentrix_access_token = {
   "token": None,
   "expires_at": 0
 }

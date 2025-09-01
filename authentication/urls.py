@@ -11,8 +11,8 @@ urlpatterns = [
   path('logout/', v.auth.LogoutView.as_view(), name='logout_api'),
   path("oauth/<str:oauth_provider>/", v.auth.oauth_redirect, name="oauth_redirect"),
   path("oauth/<str:oauth_provider>/callback/", v.auth.oauth_callback, name="oauth_callback"),
-  path("account/activate/", v.account.activateUserAccount, name="activateAccount"),
-  path("account/completeData/", v.account.completeUserDetials, name="completeUserDetials"),
+  #path("account/activate/", v.account.activateUserAccount, name="activateAccount"),
+  #path("account/completeData/", v.account.completeUserDetials, name="completeUserDetials"),
   path('account/resetPassword/', v.account.ResetPassword, name='ResetPassword'),
   
 ]

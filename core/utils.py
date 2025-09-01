@@ -1,7 +1,9 @@
-from .MainVariables import BaseURLs, GoogleOAuth, GitHubOAuth, HostURL, _mediadrop_access_token, MainVars
+from .MainVariables import BaseURLs, GoogleOAuth, GitHubOAuth, HostURL, _zentrix_access_token, MainVars
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.core.mail import send_mail, EmailMessage
 import base64, requests, time, random
 from email.mime.text import MIMEText
+from django.conf import settings
 from user_agents import parse
 from . import jwt_extract
 
@@ -77,31 +79,44 @@ def refresh_google_access_token(refresh_token):
   response = requests.post(BaseURLs["GoogleOAuth"]["getTokens"], data=data)
   return response.json()
 
-def send_email(access_token, to, subject, message_text, is_html=False):
-  mime_message = MIMEText(message_text, _subtype="html" if is_html else "plain", _charset="utf-8")
-  mime_message['to'], mime_message['subject'] = to, subject
-  mime_message['from'] = "Test Sender"
-  response = requests.post(BaseURLs["GoogleOAuth"]["emailAPI"]["send"], headers={"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}, json={"raw": base64.urlsafe_b64encode(mime_message.as_bytes()).decode("utf-8")})
-  if response.status_code == 200:
-    return {"status": True, "message": "E-mail sent successfully"}
-  return {"status": False, "message": "error at sending e-mail", "status_code": response.status_code, "text": response.text}
+#def send_email(access_token, to, subject, message_text, is_html=False):
+#  mime_message = MIMEText(message_text, _subtype="html" if is_html else "plain", _charset="utf-8")
+#  mime_message['to'], mime_message['subject'] = to, subject
+#  mime_message['from'] = "Test Sender"
+#  response = requests.post(BaseURLs["GoogleOAuth"]["emailAPI"]["send"], headers={"Authorization": f"Bearer {access_token}", "Content-Type": "application/json"}, json={"raw": base64.urlsafe_b64encode(mime_message.as_bytes()).decode("utf-8")})
+#  if response.status_code == 200:
+#    return {"status": True, "message": "E-mail sent successfully"}
+#  return {"status": False, "message": "error at sending e-mail", "status_code": response.status_code, "text": response.text}
 
-def get_mediadrop_google_access():
-  global _mediadrop_access_token
-  if _mediadrop_access_token['token'] and time.time() < _mediadrop_access_token['expires_at'] - 60:
-    return _mediadrop_access_token['token']
+
+def send_email(to, subject, message_text, is_html=False, from_email=settings.EMAIL_HOST_USER):
+  try:
+    if is_html:
+      email = EmailMessage(subject=subject, body=message_text, from_email=from_email, to=[to],)
+      email.content_subtype = "html"
+      email.send()
+    else:
+      send_mail(subject=subject, message=message_text, from_email=from_email, recipient_list=[to],)
+    return {"status": True, "message": "E-mail sent successfully"}
+  except Exception as e:
+    return {"status": False, "message": "error at sending e-mail", "status_code": response.status_code, "text": response.text}
+
+def get_zentrix_google_access():
+  global _zentrix_access_token
+  if _zentrix_access_token['token'] and time.time() < _zentrix_access_token['expires_at'] - 60:
+    return _zentrix_access_token['token']
   data = {
     'client_id': GoogleOAuth["client_id"],
     'client_secret': GoogleOAuth["client_secret"],
-    'refresh_token': MainVars["mediadrop"]["gmail"]["refresh_token"],
+    'refresh_token': MainVars["zentrix"]["gmail"]["refresh_token"],
     'grant_type': 'refresh_token'
   }
   res = requests.post(BaseURLs["GoogleOAuth"]["getTokens"], data=data)
   res.raise_for_status()
   tokens = res.json()
-  _mediadrop_access_token['token'] = tokens['access_token']
-  _mediadrop_access_token['expires_at'] = time.time() + tokens['expires_in']
-  return _mediadrop_access_token['token']
+  _zentrix_access_token['token'] = tokens['access_token']
+  _zentrix_access_token['expires_at'] = time.time() + tokens['expires_in']
+  return _zentrix_access_token['token']
 
 def generate_code(length=8):
   return ''.join(str(random.randint(0, 9)) for _ in range(length))
