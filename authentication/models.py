@@ -1,11 +1,15 @@
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import User
 from django.utils.timezone import now
+from django.utils import timezone
 from datetime import timedelta
 from django.db import models
 import uuid
 
 ROLE_CHOICES = (('admin', 'Admin'), ('analyst', 'Security Analyst'), ('user', 'User'),)
+
+def default_expiry(ex=30):
+ return timezone.now() + timedelta(minutes=ex)
 
 class Users(models.Model):
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=True)
@@ -46,4 +50,4 @@ class ResetPassword(models.Model):
   id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=True)
   user = models.ForeignKey(Users, on_delete=models.CASCADE)
   token = models.TextField()
-  
+  expired_at = models.DateTimeField(default=default_expiry(30))

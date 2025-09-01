@@ -1,11 +1,9 @@
-from core.utils import get_client_ip, get_user_agent, send_email, get_zentrix_google_access, generate_code
+from core.utils import get_client_ip, get_user_agent, send_email, generate_code
 from ..serializers import ResetPasswordSerializer, ResetPasswordConfirmSerializer
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth.tokens import default_token_generator
 from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from datetime import datetime, timedelta
@@ -56,31 +54,11 @@ def ResetPassword(request):
   if not serializer.is_valid(): return Response({"status": False, "error": "E-mail is invalid"}, status=status.HTTP_400_BAD_REQUEST)
   user = User.objects.filter(email=email).first()
   if not user: return Response({"status": False, "error": f"No user recorded with email: '{email}'"}, status=status.HTTP_400_BAD_REQUEST)
-  uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-  return Response({"status": True, "message": str(uidb64)}, status=status.HTTP_200_OK)
+  user_auth = m.Users.objects.get(user=user)
+  resetPassword, created = m.ResetPassword.objects.get_or_create(user=user_auth, defaults={"token": default_token_generator.make_token(user)})
+  send_email()
+  return Response({"status": True, "message": str(resetPassword), "created": created}, status=status.HTTP_200_OK)
 
-class ResetPasswordView(APIView):
-  def post(self, request):
-    serializer = ResetPasswordSerializer(data=request.data)
-    if serializer.is_valid():
-      email = serializer.validated_data['email']
-      user = User.objects.filter(email=email).first()
-      if user:
-        token = default_token_generator.make_token(user)
-        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-        link = f"http://example.com/reset-password-confirm/{uidb64}/{token}/"
-        send_mail(
-                    'Reset Password',
-                    f'Please click the link to reset your password: {link}',
-                    'from@example.com',
-                    [email],
-                    fail_silently=False,
-                )
-        return Response({'message': 'Email sent successfully'})
-      else:
-        return Response({'message': 'User not found'})
-    else:
-      return Response(serializer.errors)
 
 class ResetPasswordConfirmView(APIView):
     def post(self, request):

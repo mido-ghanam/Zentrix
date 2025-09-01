@@ -7,4 +7,4 @@ admin.site.index_title = f"Welcome to Zentrix Admin panal"
 admin.site.register(m.Users)
 admin.site.register(m.GitHubAuth)
 admin.site.register(m.GoogleAuth)
-
+admin.site.register(m.ResetPassword)
